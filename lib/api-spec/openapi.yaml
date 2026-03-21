@@ -131,6 +131,38 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /signals/{id}:
+    get:
+      operationId: getSignalById
+      tags: [signals]
+      summary: Get signal by ID
+      description: Returns the full signal result for a given UUID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Signal result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignalResult"
+        "404":
+          description: Signal not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /signals/history:
     get:
       operationId: getSignalHistory

@@ -387,6 +387,94 @@ export const useUploadTrades = <
 };
 
 /**
+ * Returns the full signal result for a given UUID
+ * @summary Get signal by ID
+ */
+export const getGetSignalByIdUrl = (id: string) => {
+  return `/api/signals/${id}`;
+};
+
+export const getSignalById = async (
+  id: string,
+  options?: RequestInit,
+): Promise<SignalResult> => {
+  return customFetch<SignalResult>(getGetSignalByIdUrl(id), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetSignalByIdQueryKey = (id: string) => {
+  return [`/api/signals/${id}`] as const;
+};
+
+export const getGetSignalByIdQueryOptions = <
+  TData = Awaited<ReturnType<typeof getSignalById>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getSignalById>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetSignalByIdQueryKey(id);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getSignalById>>> = ({
+    signal,
+  }) => getSignalById(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getSignalById>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetSignalByIdQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getSignalById>>
+>;
+export type GetSignalByIdQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Get signal by ID
+ */
+
+export function useGetSignalById<
+  TData = Awaited<ReturnType<typeof getSignalById>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getSignalById>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetSignalByIdQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
  * Returns recent signal analysis runs
  * @summary Get signal history
  */

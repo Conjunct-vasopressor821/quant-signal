@@ -119,6 +119,47 @@ export const UploadTradesResponse = zod.object({
 });
 
 /**
+ * Returns the full signal result for a given UUID
+ * @summary Get signal by ID
+ */
+export const GetSignalByIdParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const GetSignalByIdResponse = zod.object({
+  id: zod.string(),
+  symbol: zod.string(),
+  timeframe: zod.string(),
+  signal: zod.enum(["Buy", "Sell", "Hold", "Avoid"]),
+  confidenceScore: zod.number().describe("0-100 confidence score"),
+  riskScore: zod.number().describe("0-100 risk score (higher = more risky)"),
+  marketRegime: zod.enum([
+    "trend",
+    "range",
+    "breakout",
+    "breakdown",
+    "volatile",
+  ]),
+  explanation: zod.string().describe("Plain English explanation"),
+  invalidationZone: zod
+    .string()
+    .describe("Price level or condition that invalidates the signal"),
+  stopLossSuggestion: zod
+    .number()
+    .optional()
+    .describe("Suggested stop loss price"),
+  finalBanner: zod.enum(["Safe", "Caution", "Avoid"]),
+  serviceBreakdown: zod.object({
+    ingestion: zod.string(),
+    signal: zod.string(),
+    risk: zod.string(),
+    regime: zod.string(),
+    judge: zod.string(),
+  }),
+  createdAt: zod.date(),
+});
+
+/**
  * Returns recent signal analysis runs
  * @summary Get signal history
  */
