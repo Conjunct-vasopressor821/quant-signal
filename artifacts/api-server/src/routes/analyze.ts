@@ -1,6 +1,7 @@
 import { Router, type IRouter } from "express";
 import { randomUUID } from "crypto";
 import { db } from "@workspace/db";
+import { sql } from "drizzle-orm";
 import { analysisRunsTable, signalsTable, strategyNotesTable } from "@workspace/db/schema";
 import { ingestionService } from "../services/ingestionService.js";
 import { regimeService } from "../services/regimeService.js";
@@ -187,10 +188,18 @@ router.post("/analyze", async (req, res) => {
   }
 });
 
-router.get("/settings/check", (_req, res) => {
+router.get("/settings/check", async (req, res) => {
+  let databaseConnected = false;
+  try {
+    await db.execute(sql`SELECT 1`);
+    databaseConnected = true;
+  } catch (err) {
+    req.log.warn({ err }, "DB health probe failed");
+  }
+
   res.json({
     geminiApiKeyConfigured: geminiService.isConfigured(),
-    databaseConnected: true,
+    databaseConnected,
     version: "1.0.0-mvp",
   });
 });

@@ -12,5 +12,5 @@ images: []
 
 notes:
   - "The app relies on @workspace/api-client-react for TanStack Query hooks generated via Orval."
-  - "Signal result data is passed via a base64 encoded URL parameter to the results page since there is no GET /signals/:id endpoint."
+  - "Signal result data is fetched via GET /signals/:id using the generated useGetSignalById hook. Navigation goes directly to /signals/:id after analysis."
   - "The layout enforces a dark professional trading terminal aesthetic."
