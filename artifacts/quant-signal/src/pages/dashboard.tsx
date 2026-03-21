@@ -1,11 +1,12 @@
 import { useGetSignalHistory } from "@workspace/api-client-react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { Plus, TrendingUp, AlertTriangle, ShieldCheck, Activity } from "lucide-react";
 import { SignalBadge } from "@/components/SignalBadge";
 
 export default function Dashboard() {
+  const [, navigate] = useLocation();
   const { data, isLoading, isError } = useGetSignalHistory({ limit: 20 });
 
   const stats = {
@@ -109,7 +110,11 @@ export default function Dashboard() {
               </thead>
               <tbody className="divide-y divide-border/30">
                 {data.items.map((item, i) => (
-                  <tr key={item.id} className="hover:bg-muted/30 transition-colors group">
+                  <tr
+                    key={item.id}
+                    className="hover:bg-muted/30 transition-colors group cursor-pointer"
+                    onClick={() => navigate(`/signals/${item.id}`)}
+                  >
                     <td className="p-4">
                       <div className="flex items-center gap-3">
                         <span className="font-bold text-lg tracking-tight">{item.symbol}</span>

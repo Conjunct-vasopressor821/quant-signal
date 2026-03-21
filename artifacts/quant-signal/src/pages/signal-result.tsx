@@ -1,33 +1,65 @@
 import { useEffect, useState } from "react";
-import { Link, useLocation } from "wouter";
+import { Link, useParams } from "wouter";
 import { motion } from "framer-motion";
-import { ShieldCheck, AlertTriangle, ShieldAlert, ArrowLeft, RefreshCw, Layers } from "lucide-react";
+import { ShieldCheck, AlertTriangle, ShieldAlert, ArrowLeft, RefreshCw, Layers, Loader2 } from "lucide-react";
 import { SignalResult } from "@workspace/api-client-react";
 import { SignalBadge } from "@/components/SignalBadge";
 
 export default function SignalResultPage() {
-  const [, setLocation] = useLocation();
+  const { id } = useParams<{ id: string }>();
   const [data, setData] = useState<SignalResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    try {
-      const searchParams = new URLSearchParams(window.location.search);
-      const encodedData = searchParams.get("data");
-      
-      if (!encodedData) {
-        setError("No signal data found in URL. Please run a new analysis.");
+    const load = async () => {
+      if (!id) {
+        setError("No signal ID provided.");
+        setLoading(false);
         return;
       }
 
-      const decodedStr = decodeURIComponent(atob(encodedData));
-      const parsedData = JSON.parse(decodedStr) as SignalResult;
-      setData(parsedData);
-    } catch (err) {
-      console.error(err);
-      setError("Failed to parse signal data. URL might be malformed.");
-    }
-  }, []);
+      try {
+        const res = await fetch(`/api/signals/${id}`);
+        if (res.ok) {
+          const json = (await res.json()) as SignalResult;
+          setData(json);
+          setLoading(false);
+          return;
+        }
+      } catch {
+        // fall through to URL data fallback
+      }
+
+      // Fallback: try base64 data in URL (for freshly submitted analyses)
+      try {
+        const searchParams = new URLSearchParams(window.location.search);
+        const encodedData = searchParams.get("data");
+        if (encodedData) {
+          const decodedStr = decodeURIComponent(atob(encodedData));
+          setData(JSON.parse(decodedStr) as SignalResult);
+          setLoading(false);
+          return;
+        }
+      } catch {
+        // ignore
+      }
+
+      setError("Signal not found. It may have been deleted or the link is invalid.");
+      setLoading(false);
+    };
+
+    load();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 text-muted-foreground">
+        <Loader2 className="w-10 h-10 animate-spin text-primary" />
+        <p className="font-medium">Loading signal result...</p>
+      </div>
+    );
+  }
 
   if (error) {
     return (
@@ -42,7 +74,7 @@ export default function SignalResultPage() {
     );
   }
 
-  if (!data) return null; // Or a loading spinner
+  if (!data) return null;
 
   const getBannerStyles = (banner: string) => {
     switch (banner) {

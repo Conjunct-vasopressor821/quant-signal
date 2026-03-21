@@ -44,9 +44,7 @@ export default function AnalyzeSetup() {
   const { mutate: analyze, isPending, error } = useAnalyzeSetup({
     mutation: {
       onSuccess: (data) => {
-        // Encode result as base64 to pass it to the view page without a backend DB fetch requirement
-        const dataStr = btoa(encodeURIComponent(JSON.stringify(data)));
-        setLocation(`/signals/${data.id}?data=${dataStr}`);
+        setLocation(`/signals/${data.id}`);
       }
     }
   });
