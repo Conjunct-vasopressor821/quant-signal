@@ -1,0 +1,16 @@
+packages:
+  "react-hook-form": "Form state management with complex validation"
+  "@hookform/resolvers": "Zod schema integration for React Hook Form"
+  "zod": "Schema definition and validation for forms"
+  "framer-motion": "Smooth entry animations and layout transitions for the trading terminal"
+  "react-dropzone": "Drag and drop file upload handling for screenshots and CSVs"
+  "date-fns": "Formatting timestamps in the signal history table"
+  "clsx": "Utility for conditionally joining class names"
+  "tailwind-merge": "Utility for intelligently merging Tailwind classes"
+
+images: []
+
+notes:
+  - "The app relies on @workspace/api-client-react for TanStack Query hooks generated via Orval."
+  - "Signal result data is passed via a base64 encoded URL parameter to the results page since there is no GET /signals/:id endpoint."
+  - "The layout enforces a dark professional trading terminal aesthetic."

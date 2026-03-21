@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "QuantSignal"
+version = "1.0.0"
+id = "artifacts/quant-signal"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 21302
+
+[services.development]
+run = "pnpm --filter @workspace/quant-signal run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/quant-signal", "run", "build" ]
+publicDir = "artifacts/quant-signal/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "21302"
+BASE_PATH = "/"

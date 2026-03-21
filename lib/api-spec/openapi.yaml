@@ -3,13 +3,19 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: QuantSignal - AI-powered quant signal validation platform API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: analyze
+    description: Signal analysis operations
+  - name: upload
+    description: File upload operations
+  - name: signals
+    description: Signal history operations
 paths:
   /healthz:
     get:
@@ -24,6 +30,146 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /analyze:
+    post:
+      operationId: analyzeSetup
+      tags: [analyze]
+      summary: Analyze a trade setup
+      description: Accepts structured market inputs and returns a signal with confidence, risk, regime, and explanation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnalysisRequest"
+      responses:
+        "200":
+          description: Signal result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignalResult"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /upload/screenshot:
+    post:
+      operationId: uploadScreenshot
+      tags: [upload]
+      summary: Upload chart screenshot
+      description: Upload a chart screenshot for analysis context
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                symbol:
+                  type: string
+                timeframe:
+                  type: string
+              required:
+                - file
+      responses:
+        "200":
+          description: Upload result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadResult"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /upload/trades:
+    post:
+      operationId: uploadTrades
+      tags: [upload]
+      summary: Upload trade history CSV
+      description: Upload a CSV file containing trade history
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+              required:
+                - file
+      responses:
+        "200":
+          description: Upload and parse result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TradeUploadResult"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /signals/history:
+    get:
+      operationId: getSignalHistory
+      tags: [signals]
+      summary: Get signal history
+      description: Returns recent signal analysis runs
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: List of past signals
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignalHistoryResponse"
+
+  /settings/check:
+    get:
+      operationId: checkSettings
+      tags: [analyze]
+      summary: Check API key configuration
+      description: Returns whether the Gemini API key is configured
+      responses:
+        "200":
+          description: Settings status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SettingsStatus"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +180,252 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+      required:
+        - error
+        - message
+
+    AnalysisRequest:
+      type: object
+      properties:
+        symbol:
+          type: string
+          description: Trading symbol e.g. BTCUSDT, AAPL, NIFTY
+        timeframe:
+          type: string
+          description: Chart timeframe e.g. 5m, 15m, 1h, 1d
+        strategyNote:
+          type: string
+          description: Optional plain text strategy note
+        entryPrice:
+          type: number
+          description: Optional entry price
+        stopLoss:
+          type: number
+          description: Optional stop loss price
+        target:
+          type: number
+          description: Optional target price
+        marketBias:
+          type: string
+          enum: [bullish, bearish, neutral]
+          description: User's market bias
+        screenshotFileId:
+          type: string
+          description: Optional uploaded screenshot file ID
+        tradeFileId:
+          type: string
+          description: Optional uploaded trade CSV file ID
+      required:
+        - symbol
+        - timeframe
+
+    SignalResult:
+      type: object
+      properties:
+        id:
+          type: string
+        symbol:
+          type: string
+        timeframe:
+          type: string
+        signal:
+          type: string
+          enum: [Buy, Sell, Hold, Avoid]
+        confidenceScore:
+          type: number
+          description: 0-100 confidence score
+        riskScore:
+          type: number
+          description: 0-100 risk score (higher = more risky)
+        marketRegime:
+          type: string
+          enum: [trend, range, breakout, breakdown, volatile]
+        explanation:
+          type: string
+          description: Plain English explanation
+        invalidationZone:
+          type: string
+          description: Price level or condition that invalidates the signal
+        stopLossSuggestion:
+          type: number
+          description: Suggested stop loss price
+        finalBanner:
+          type: string
+          enum: [Safe, Caution, Avoid]
+        serviceBreakdown:
+          $ref: "#/components/schemas/ServiceBreakdown"
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - symbol
+        - timeframe
+        - signal
+        - confidenceScore
+        - riskScore
+        - marketRegime
+        - explanation
+        - invalidationZone
+        - finalBanner
+        - serviceBreakdown
+        - createdAt
+
+    ServiceBreakdown:
+      type: object
+      properties:
+        ingestion:
+          type: string
+        signal:
+          type: string
+        risk:
+          type: string
+        regime:
+          type: string
+        judge:
+          type: string
+      required:
+        - ingestion
+        - signal
+        - risk
+        - regime
+        - judge
+
+    UploadResult:
+      type: object
+      properties:
+        fileId:
+          type: string
+        filename:
+          type: string
+        size:
+          type: number
+        message:
+          type: string
+      required:
+        - fileId
+        - filename
+        - size
+        - message
+
+    TradeRecord:
+      type: object
+      properties:
+        date:
+          type: string
+        symbol:
+          type: string
+        side:
+          type: string
+          enum: [buy, sell, long, short]
+        entry:
+          type: number
+        exit:
+          type: number
+        pnl:
+          type: number
+      required:
+        - date
+        - symbol
+        - side
+        - entry
+        - exit
+        - pnl
+
+    TradeUploadResult:
+      type: object
+      properties:
+        fileId:
+          type: string
+        filename:
+          type: string
+        totalRecords:
+          type: number
+        parsedRecords:
+          type: array
+          items:
+            $ref: "#/components/schemas/TradeRecord"
+        message:
+          type: string
+      required:
+        - fileId
+        - filename
+        - totalRecords
+        - parsedRecords
+        - message
+
+    SignalHistoryItem:
+      type: object
+      properties:
+        id:
+          type: string
+        symbol:
+          type: string
+        timeframe:
+          type: string
+        signal:
+          type: string
+          enum: [Buy, Sell, Hold, Avoid]
+        confidenceScore:
+          type: number
+        riskScore:
+          type: number
+        marketRegime:
+          type: string
+          enum: [trend, range, breakout, breakdown, volatile]
+        finalBanner:
+          type: string
+          enum: [Safe, Caution, Avoid]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - symbol
+        - timeframe
+        - signal
+        - confidenceScore
+        - riskScore
+        - marketRegime
+        - finalBanner
+        - createdAt
+
+    SignalHistoryResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/SignalHistoryItem"
+        total:
+          type: number
+        limit:
+          type: number
+        offset:
+          type: number
+      required:
+        - items
+        - total
+        - limit
+        - offset
+
+    SettingsStatus:
+      type: object
+      properties:
+        geminiApiKeyConfigured:
+          type: boolean
+        databaseConnected:
+          type: boolean
+        version:
+          type: string
+      required:
+        - geminiApiKeyConfigured
+        - databaseConnected
+        - version
