@@ -7,8 +7,10 @@ const router: IRouter = Router();
 
 router.get("/signals/history", async (req, res) => {
   try {
-    const limit = Math.min(parseInt(String(req.query["limit"] || "20")), 100);
-    const offset = parseInt(String(req.query["offset"] || "0"));
+    const rawLimit = parseInt(String(req.query["limit"] || "20"), 10);
+    const rawOffset = parseInt(String(req.query["offset"] || "0"), 10);
+    const limit = Math.min(Number.isNaN(rawLimit) || rawLimit <= 0 ? 20 : rawLimit, 100);
+    const offset = Number.isNaN(rawOffset) || rawOffset < 0 ? 0 : rawOffset;
 
     const [items, [{ total }]] = await Promise.all([
       db

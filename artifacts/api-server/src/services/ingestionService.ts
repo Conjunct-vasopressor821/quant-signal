@@ -84,7 +84,9 @@ export class IngestionService {
       try {
         const date = dateIdx >= 0 ? cols[dateIdx] : new Date().toISOString().split("T")[0];
         const symbol = symbolIdx >= 0 ? cols[symbolIdx] : "UNKNOWN";
-        const side = sideIdx >= 0 ? cols[sideIdx].toLowerCase() : "buy";
+        const rawSide = sideIdx >= 0 ? cols[sideIdx].toLowerCase() : "buy";
+        const VALID_SIDES = ["buy", "sell", "long", "short"] as const;
+        const side = VALID_SIDES.includes(rawSide as typeof VALID_SIDES[number]) ? rawSide : "buy";
         const entry = entryIdx >= 0 ? parseFloat(cols[entryIdx]) : 0;
         const exit = exitIdx >= 0 ? parseFloat(cols[exitIdx]) : 0;
         const pnl = pnlIdx >= 0 ? parseFloat(cols[pnlIdx]) : exit - entry;
