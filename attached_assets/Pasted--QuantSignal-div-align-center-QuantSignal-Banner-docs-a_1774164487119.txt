@@ -1,0 +1,163 @@
+# QuantSignal
+
+<div align="center">
+
+![QuantSignal Banner](./docs/assets/banner.png)
+
+**AI-powered live market signal validation platform for crypto traders, quants, and researchers.**
+
+[![Next.js](https://img.shields.io/badge/Frontend-Next.js-000000?style=for-the-badge&logo=next.js)](#tech-stack)
+[![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?style=for-the-badge&logo=fastapi)](#tech-stack)
+[![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python)](#tech-stack)
+[![Gemini](https://img.shields.io/badge/AI-Gemini-4285F4?style=for-the-badge&logo=google)](#ai-layer)
+[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](#license)
+
+</div>
+
+---
+
+## Overview
+
+**QuantSignal** is a live-analysis trading assistant that combines:
+
+- real-time market data
+- live candlestick charts
+- rule-based signal analysis
+- AI-generated reasoning
+- risk and invalidation logic
+- trade setup explanation in plain English
+
+The goal is **not** to promise perfect price prediction.  
+The goal is to help users **validate live setups**, understand market context, and make more structured decisions.
+
+---
+
+## Key Features
+
+- **Live crypto charting**
+  - Real-time candle updates
+  - Symbol switching
+  - Timeframe switching
+- **Live signal analysis**
+  - Buy / Sell / Hold / Avoid
+  - Confidence score
+  - Risk score
+  - Regime detection
+- **Trade structure generation**
+  - Stop loss
+  - Target
+  - Invalidation zone
+- **AI explanation layer**
+  - Human-readable setup summary
+  - Trade logic explanation
+  - Risk-aware commentary
+- **Multi-input workflow**
+  - Live chart mode
+  - Manual setup analysis
+  - Screenshot upload
+  - Trade CSV upload
+- **Dashboard and history**
+  - Signal history
+  - Analysis runs
+  - Basic performance review
+
+---
+
+## Why QuantSignal?
+
+Most tools are either:
+
+- only charting platforms
+- only backtesting platforms
+- only AI chat layers
+- or too complex for practical live use
+
+**QuantSignal** is designed to sit between charting and decision support:
+
+> live market data + structured signal logic + AI explanation + risk controls
+
+---
+
+## Product Philosophy
+
+QuantSignal is built around these principles:
+
+- **live market awareness**
+- **clear signal reasoning**
+- **risk-first analysis**
+- **modular agent-like workflow**
+- **AI as assistant, not blind oracle**
+
+This project is inspired by **multi-agent reasoning patterns** and uses a modular pipeline for:
+
+- ingestion
+- signal generation
+- regime detection
+- risk scoring
+- decision output
+- plain-English explanation
+
+---
+
+## Screenshots
+
+### Live Analysis
+![Live Analysis](./docs/assets/live-analysis.png)
+
+### Dashboard
+![Dashboard](./docs/assets/dashboard.png)
+
+### Analyze Setup
+![Analyze Setup](./docs/assets/analyze-setup.png)
+
+### Upload Screenshot
+![Upload Screenshot](./docs/assets/upload-screenshot.png)
+
+---
+
+## Tech Stack
+
+### Frontend
+- Next.js
+- TypeScript
+- Tailwind CSS
+- shadcn/ui
+- TradingView Lightweight Charts
+
+### Backend
+- Python
+- FastAPI
+- Pydantic
+- WebSocket / REST integration
+- PostgreSQL
+
+### AI Layer
+- Gemini API
+
+### Market Data
+- Live crypto market data provider
+- REST for candle history
+- WebSocket for live updates
+
+---
+
+## Architecture
+
+```text
+Live Market Data
+   ↓
+Market Data Service
+   ↓
+Candle Close Detection
+   ↓
+Signal Engine
+   ├── Regime Logic
+   ├── Risk Logic
+   ├── Stop/Target Logic
+   └── Invalidation Logic
+   ↓
+AI Explanation Layer
+   ↓
+Frontend Live Analysis UI
+   ↓
+History / Dashboard / Storage

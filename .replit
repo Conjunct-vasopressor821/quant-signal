@@ -32,3 +32,7 @@ BINANCE_REST_BASE_URL = "https://api.binance.com"
 BINANCE_WS_BASE_URL = "wss://stream.binance.com:9443"
 KRAKEN_REST_BASE_URL = "https://api.kraken.com"
 KRAKEN_WS_URL = "wss://ws.kraken.com/v2"
+
+[nix]
+channel = "stable-25_05"
+packages = ["glib", "nss", "nspr", "atk", "at-spi2-atk", "dbus", "libdrm", "mesa", "xorg.libX11", "xorg.libXcomposite", "xorg.libXdamage", "xorg.libXext", "xorg.libXfixes", "xorg.libXrandr", "xorg.libxcb", "libxkbcommon", "alsa-lib", "libgbm"]
