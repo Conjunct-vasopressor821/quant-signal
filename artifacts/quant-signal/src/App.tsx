@@ -11,6 +11,7 @@ import UploadScreenshot from "@/pages/upload-screenshot";
 import UploadTrades from "@/pages/upload-trades";
 import SignalResultPage from "@/pages/signal-result";
 import Settings from "@/pages/settings";
+import LiveChart from "@/pages/live-chart";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -20,6 +21,7 @@ function Router() {
     <Layout>
       <Switch>
         <Route path="/" component={Dashboard} />
+        <Route path="/live" component={LiveChart} />
         <Route path="/analyze" component={AnalyzeSetup} />
         <Route path="/upload/screenshot" component={UploadScreenshot} />
         <Route path="/upload/trades" component={UploadTrades} />

@@ -8,13 +8,15 @@ import {
   FileSpreadsheet,
   Settings,
   Menu,
-  X
+  X,
+  Radio
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/live", label: "Live Chart", icon: Radio },
   { href: "/analyze", label: "Analyze Setup", icon: Activity },
   { href: "/upload/screenshot", label: "Upload Screenshot", icon: ImageIcon },
   { href: "/upload/trades", label: "Upload Trades", icon: FileSpreadsheet },

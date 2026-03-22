@@ -24,3 +24,11 @@ expertMode = true
 [postMerge]
 path = "scripts/post-merge.sh"
 timeoutMs = 20000
+
+[userenv]
+
+[userenv.shared]
+BINANCE_REST_BASE_URL = "https://api.binance.com"
+BINANCE_WS_BASE_URL = "wss://stream.binance.com:9443"
+KRAKEN_REST_BASE_URL = "https://api.kraken.com"
+KRAKEN_WS_URL = "wss://ws.kraken.com/v2"
