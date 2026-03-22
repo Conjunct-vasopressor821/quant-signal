@@ -82,6 +82,7 @@ export default function LiveChartPage() {
   const seriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const esRef = useRef<EventSource | null>(null);
+  const lastChartTimeRef = useRef<number>(0); // unix seconds of last bar in chart
   const symbolRef = useRef(symbol);
   const timeframeRef = useRef(timeframe);
 
@@ -160,7 +161,9 @@ export default function LiveChartPage() {
         seriesRef.current.setData(chartData);
         chartRef.current?.timeScale().scrollToRealTime();
         if (data.candles.length > 0) {
-          setLatestCandle(data.candles[data.candles.length - 1]);
+          const last = data.candles[data.candles.length - 1];
+          lastChartTimeRef.current = last.time;
+          setLatestCandle(last);
         }
         console.log(`[LiveChart] Loaded ${data.candles.length} candles`);
       })
@@ -179,6 +182,7 @@ export default function LiveChartPage() {
     setAnalysisStatus("waiting");
     setAnalysisError(null);
     setStreamStatus("connecting");
+    lastChartTimeRef.current = 0; // reset so new history can load cleanly
 
     console.log(`[LiveChart] Connecting SSE for ${symbol} ${timeframe}`);
 
@@ -215,18 +219,28 @@ export default function LiveChartPage() {
         return;
       }
 
-      // Update price chart
+      // Update price chart (only for candles at or after the last plotted bar)
       const { candle } = payload;
-      setLatestCandle(candle);
-      setIsCandleLive(!payload.isClosed);
       setLastTickAt(new Date(payload.ts));
 
-      if (seriesRef.current) {
-        seriesRef.current.update({
-          time: candle.time as UTCTimestamp,
-          open: candle.open, high: candle.high, low: candle.low, close: candle.close,
-        });
-        chartRef.current?.timeScale().scrollToRealTime();
+      if (candle.time >= lastChartTimeRef.current) {
+        setLatestCandle(candle);
+        setIsCandleLive(!payload.isClosed);
+
+        if (seriesRef.current) {
+          try {
+            seriesRef.current.update({
+              time: candle.time as UTCTimestamp,
+              open: candle.open, high: candle.high, low: candle.low, close: candle.close,
+            });
+            lastChartTimeRef.current = candle.time;
+            chartRef.current?.timeScale().scrollToRealTime();
+          } catch (err) {
+            console.warn("[LiveChart] Chart update skipped:", err);
+          }
+        }
+      } else {
+        console.debug(`[LiveChart] Skipping stale candle update: ${candle.time} < ${lastChartTimeRef.current}`);
       }
 
       // Analysis state machine
