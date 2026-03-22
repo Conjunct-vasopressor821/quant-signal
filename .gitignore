@@ -50,3 +50,6 @@ Thumbs.db
 
 # Runtime upload storage
 artifacts/api-server/uploads/
+
+# Playwright browser cache
+.cache/ms-playwright/
